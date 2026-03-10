@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REDEMPTION | Quantum ESG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- External JS Libraries for Animations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.0.6/tsparticles.slim.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace']
+                    },
+                    colors: {
+                        dark: '#030712', /* Ultra dark */
+                        panel: 'rgba(17, 24, 39, 0.6)',
+                        brand: '#10b981',
+                        accent: '#3b82f6'
+                    },
+                    animation: {
+                        'border-spin': 'border-spin 3s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        'border-spin': { '100%': { transform: 'rotate(360deg)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #030712; color: #f3f4f6; overflow-x: hidden; }
+        
+        /* Particle Canvas */
+        #tsparticles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        /* Premium Glass Panel */
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Animated Glowing Border Card */
+        .glow-card-wrapper {
+            position: relative; overflow: hidden; border-radius: 1.5rem; padding: 2px;
+        }
+        .glow-card-wrapper::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, #10b981);
+            animation: border-spin 4s linear infinite;
+        }
+        .glow-card-content {
+            position: relative; background: #0f172a; border-radius: 1.4rem; height: 100%;
+        }
+
+        /* Sci-Fi Inputs */
+        .cyber-input {
+            background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa; transition: all 0.3s ease; font-family: 'Space Mono', monospace;
+        }
+        .cyber-input:focus {
+            border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); outline: none;
+        }
+
+        /* Typing Cursor */
+        .cursor::after { content: '|'; animation: blink 1s step-end infinite; color: #10b981; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Particle Background -->
+    <div id="tsparticles"></div>
+
+    <!-- Header -->
+    <header class="border-b border-white/10 bg-black/40 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="relative w-10 h-10 flex items-center justify-center bg-dark border border-brand/50 rounded-lg overflow-hidden group">
+                    <div class="absolute inset-0 bg-brand/20 group-hover:bg-brand/40 transition-colors"></div>
+                    <i class="fas fa-satellite-dish text-brand text-xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-2xl tracking-widest text-white">REDEMPTION<span class="text-brand">.AI</span></h1>
+                    <p class="text-[10px] text-accent uppercase tracking-[0.3em] font-mono">Quantum Optimization Engine</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-xs font-mono text-gray-500 hidden sm:block" id="liveTime">00:00:00:00</span>
+                <div class="flex items-center gap-2 bg-brand/10 border border-brand/30 px-4 py-2 rounded-full">
+                    <div class="w-2.5 h-2.5 rounded-full bg-brand animate-ping absolute"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-brand relative"></div>
+                    <span class="text-xs font-bold text-brand uppercase tracking-wider">Neural Link Active</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 grid grid-cols-1 xl:grid-cols-12 gap-8 z-10">
+
+        <!-- LEFT: Control Console -->
+        <div class="xl:col-span-4" data-tilt data-tilt-max="2" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.1">
+            <div class="glass-panel p-8 h-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-sm font-bold text-gray-300 uppercase tracking-widest border-b border-accent/30 pb-2">Mission Parameters</h2>
+                </div>
+                
+                <form id="predictionForm" class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-bold">Sector</label>
+                            <select id="sector" class="w-full cyber-input rounded-md p-3 text-sm">
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Logistics">Logistics Fleet</option>
+                                <option value="IT">Data Center (IT)</option>
+                                <option value="Retail">Retail Array</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-bold">Node City</label>
+                            <select id="city" class="w-full cyber-input rounded-md p-3 text-sm">
+                                <option value="Mumbai">Mumbai Alpha</option>
+                                <option value="Chennai">Chennai Beta</option>
+                                <option value="Delhi">Delhi Core</option>
+                                <option value="Bangalore">Bangalore Nexus</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-bold">Headcount</label>
+                            <input type="number" id="employees" value="1200" class="w-full cyber-input rounded-md p-3 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-bold">Facility Area</label>
+                            <input type="number" id="area" value="150000" class="w-full cyber-input rounded-md p-3 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 pt-4 border-t border-white/10">
+                        <!-- Custom Energy Sliders -->
+                        <div>
+                            <div class="flex justify-between text-xs font-mono mb-2">
+                                <span class="text-accent">Grid Draw (kWh)</span>
+                                <span id="gridVal" class="text-white font-bold">25000</span>
+                            </div>
+                            <input type="range" id="grid" min="0" max="100000" step="1000" value="25000" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" style="accent-color: #3b82f6;" oninput="document.getElementById('gridVal').innerText = this.value">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-mono mb-2">
+                                <span class="text-brand">Solar/Wind (kWh)</span>
+                                <span id="renewVal" class="text-white font-bold">5000</span>
+                            </div>
+                            <input type="range" id="renewable" min="0" max="50000" step="1000" value="5000" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" style="accent-color: #10b981;" oninput="document.getElementById('renewVal').innerText = this.value">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-mono mb-2">
+                                <span class="text-rose-500">Diesel Burn (Liters)</span>
+                                <span id="dieselVal" class="text-white font-bold">2000</span>
+                            </div>
+                            <input type="range" id="diesel" min="0" max="10000" step="100" value="2000" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" style="accent-color: #f43f5e;" oninput="document.getElementById('dieselVal').innerText = this.value">
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="gas" value="100"> 
+                    <input type="hidden" id="temp" value="34">
+
+                    <button type="submit" class="w-full relative group overflow-hidden bg-transparent border border-brand text-brand font-bold py-4 rounded-xl transition-all hover:bg-brand hover:text-dark hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] flex items-center justify-center gap-3 uppercase tracking-widest text-sm mt-6">
+                        <i class="fas fa-bolt"></i> Initialize AI Sequence
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT: Visualization & Intelligence -->
+        <div class="xl:col-span-8 flex flex-col gap-6 relative">
+            
+            <!-- Default Target Screen -->
+            <div id="welcomeState" class="glass-panel h-full flex flex-col items-center justify-center p-12 relative overflow-hidden group">
+                <div class="w-32 h-32 border border-dashed border-gray-600 rounded-full flex items-center justify-center animate-[spin_10s_linear_infinite]">
+                    <div class="w-20 h-20 border border-accent rounded-full flex items-center justify-center animate-[spin_5s_linear_infinite_reverse]"></div>
+                </div>
+                <i class="fas fa-crosshairs absolute text-4xl text-gray-700"></i>
+                <h2 class="mt-8 text-2xl font-mono text-gray-400">AWAITING SYSTEM INPUT</h2>
+            </div>
+
+            <!-- Cyber Loader -->
+            <div id="loader" class="hidden glass-panel h-full flex flex-col justify-center p-12">
+                <div class="max-w-md mx-auto w-full">
+                    <div class="flex justify-between text-xs font-mono text-brand mb-2">
+                        <span>SYSTEM OVERRIDE</span>
+                        <span id="loadPct">0%</span>
+                    </div>
+                    <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden mb-8">
+                        <div id="loadBar" class="h-full bg-brand w-0 shadow-[0_0_10px_#10b981] transition-all duration-300"></div>
+                    </div>
+                    <div id="terminalText" class="text-sm font-mono text-accent space-y-2 h-24">
+                        <p class="opacity-0">> Establishing secure connection...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Dashboard -->
+            <div id="resultContainer" class="hidden flex-col h-full gap-6">
+                
+                <!-- Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-8" data-tilt data-tilt-max="5" data-tilt-glare="true" data-tilt-max-glare="0.2">
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2">Projected Carbon Output</p>
+                        <div class="flex items-end gap-3">
+                            <h1 id="carbonResult" class="text-6xl font-bold text-white font-mono">0</h1>
+                            <span class="text-xl text-gray-500 font-mono mb-1">MT</span>
+                        </div>
+                    </div>
+                    
+                    <div class="glow-card-wrapper" data-tilt data-tilt-max="5">
+                        <div class="glow-card-content p-8 flex flex-col justify-center">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Financial Penalty (Tax)</p>
+                                <i class="fas fa-radiation text-rose-500 animate-pulse"></i>
+                            </div>
+                            <div class="flex items-end gap-1">
+                                <span class="text-3xl text-rose-500 font-mono mb-1">$</span>
+                                <h1 id="taxResult" class="text-6xl font-bold text-rose-400 font-mono">0</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Prescriptive Insight (Typewriter Effect here) -->
+                <div class="glass-panel p-8 border-l-4 border-brand">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-brand uppercase tracking-widest"><i class="fas fa-brain mr-2"></i>AI Prescriptive Strategy</h3>
+                        <span class="text-xs bg-brand/10 text-brand px-2 py-1 rounded font-mono border border-brand/20">CONFIDENCE: 98.4%</span>
+                    </div>
+                    
+                    <!-- Typewriter Text -->
+                    <p class="text-lg text-gray-300 font-mono leading-relaxed mb-8 min-h-[60px] cursor" id="aiActionText"></p>
+                    
+                    <div class="grid grid-cols-2 gap-6 border-t border-gray-800 pt-6">
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2">Potential ROI</p>
+                            <h2 id="saveMoney" class="text-3xl font-bold text-brand font-mono">+$0</h2>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2">Emission Mitigation</p>
+                            <h2 id="saveCarbon" class="text-3xl font-bold text-white font-mono">-0 MT</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graph -->
+                <div class="glass-panel p-6 flex-grow flex flex-col">
+                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Trajectory Forecast Analysis</h3>
+                    <div class="relative flex-grow min-h-[200px]">
+                        <canvas id="impactChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- MEGA JAVASCRIPT ANIMATIONS & LOGIC -->
+    <script>
+        // 1. Initialize Particles Background
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 60, density: { enable: true, value_area: 800 } },
+                color: { value: ["#10b981", "#3b82f6", "#ffffff"] },
+                shape: { type: "circle" },
+                opacity: { value: 0.3, random: true },
+                size: { value: 3, random: true },
+                links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.1, width: 1 },
+                move: { enable: true, speed: 1, direction: "none", random: true, outModes: "out" }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "grab" } },
+                modes: { grab: { distance: 200, links: { opacity: 0.3 } } }
+            }
+        });
+
+        // 2. Live Time Function
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('liveTime').innerText = `SYS_T: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}:${now.getMilliseconds().toString().padStart(3,'0').substring(0,2)}`;
+        }, 50);
+
+        // 3. Odometer Animation Function (Number counting up)
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                // Ease out cubic
+                const easeOut = 1 - Math.pow(1 - progress, 3); 
+                let current = progress * (end - start) + start;
+                
+                // Formatting based on element
+                if(obj.id === 'taxResult' || obj.id === 'saveMoney') {
+                    obj.innerHTML = current.toLocaleString('en-US', {maximumFractionDigits: 0});
+                } else {
+                    obj.innerHTML = current.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                }
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    // Final exact value
+                    if(obj.id === 'taxResult' || obj.id === 'saveMoney') obj.innerHTML = end.toLocaleString('en-US', {maximumFractionDigits: 0});
+                    else obj.innerHTML = end.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // 4. Typewriter Effect Function
+        function typeWriter(text, i, elementId) {
+            if (i === 0) document.getElementById(elementId).innerHTML = "";
+            if (i < text.length) {
+                document.getElementById(elementId).innerHTML += text.charAt(i);
+                setTimeout(() => typeWriter(text, i + 1, elementId), 30); // Speed
+            }
+        }
+
+        let myChart = null;
+
+        // 5. Main Form Submit Logic
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+            
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Processing...`;
+            
+            document.getElementById('welcomeState').classList.add('hidden');
+            document.getElementById('resultContainer').classList.add('hidden');
+            document.getElementById('loader').classList.remove('hidden');
+
+            // Fake Terminal Loading Sequence
+            const terminal = document.getElementById('terminalText');
+            terminal.innerHTML = '';
+            const msgs = ["> Establishing secure neural connection...", "> Accessing facility telemetry...", "> Running optimization forests...", "> Finalizing Carbon Tax ROI..."];
+            let pct = 0;
+            
+            const loadInterval = setInterval(() => {
+                pct += Math.floor(Math.random() * 15) + 5;
+                if(pct > 99) pct = 99;
+                document.getElementById('loadPct').innerText = pct + '%';
+                document.getElementById('loadBar').style.width = pct + '%';
+            }, 200);
+
+            msgs.forEach((msg, idx) => {
+                setTimeout(() => {
+                    terminal.innerHTML += `<p class="text-accent">${msg}</p>`;
+                }, idx * 600);
+            });
+
+            // Data Collection
+            const requestData = {
+                Industry_Sector: document.getElementById('sector').value,
+                Facility_City: document.getElementById('city').value,
+                Active_Employees_Count: parseInt(document.getElementById('employees').value),
+                Total_Facility_Area_sqft: parseFloat(document.getElementById('area').value),
+                Average_Temperature_C: parseFloat(document.getElementById('temp').value),
+                Grid_Electricity_kWh: parseFloat(document.getElementById('grid').value),
+                Renewable_Energy_Purchased_kWh: parseFloat(document.getElementById('renewable').value),
+                Diesel_Consumed_Liters: parseFloat(document.getElementById('diesel').value),
+                Natural_Gas_Therms: parseFloat(document.getElementById('gas').value)
+            };
+
+            try {
+                // SERVER DEPLOYMENT: Keep as 'https://saroai.site/predict'
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                // Wait for fake terminal to finish (about 2.5 seconds total)
+                setTimeout(() => {
+                    clearInterval(loadInterval);
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('resultContainer').classList.remove('hidden');
+                    document.getElementById('resultContainer').classList.add('flex');
+                    btn.innerHTML = `<i class="fas fa-bolt"></i> Recalculate Sequence`;
+
+                    const currentEmissions = result.predictions.Total_Carbon_Emission_MT;
+                    const currentTax = result.predictions.Estimated_Carbon_Tax_USD;
+                    const opt = result.optimization;
+
+                    // Trigger Odometer Animations!
+                    animateValue(document.getElementById('carbonResult'), 0, currentEmissions, 1500);
+                    animateValue(document.getElementById('taxResult'), 0, currentTax, 1500);
+                    
+                    if (opt.potential_money_saved_USD > 0) {
+                        animateValue(document.getElementById('saveMoney'), 0, opt.potential_money_saved_USD, 2000);
+                        animateValue(document.getElementById('saveCarbon'), 0, opt.potential_carbon_reduction_MT, 2000);
+                        document.getElementById('saveMoney').classList.add('text-brand');
+                        document.getElementById('saveMoney').classList.remove('text-gray-500');
+                    } else {
+                        document.getElementById('saveMoney').innerText = "Maximized";
+                        document.getElementById('saveCarbon').innerText = "Optimal";
+                        document.getElementById('saveMoney').classList.remove('text-brand');
+                        document.getElementById('saveMoney').classList.add('text-gray-500');
+                    }
+
+                    // Trigger Typewriter Animation for Text!
+                    typeWriter(opt.action_required, 0, 'aiActionText');
+
+                    // Render Chart
+                    const optimizedEmissions = (currentEmissions - opt.potential_carbon_reduction_MT).toFixed(2);
+                    renderChart(currentEmissions, optimizedEmissions);
+
+                }, 2800); 
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Neural Link Failed. Check API Server.");
+                clearInterval(loadInterval);
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('welcomeState').classList.remove('hidden');
+                btn.innerHTML = `<i class="fas fa-bolt"></i> Initialize AI Sequence`;
+            }
+        });
+
+        // 6. Cyberpunk Chart.js Render
+        function renderChart(current, optimized) {
+            const ctx = document.getElementById('impactChart').getContext('2d');
+            if (myChart) { myChart.destroy(); } 
+            
+            Chart.defaults.color = '#6b7280';
+            Chart.defaults.font.family = 'Space Mono, monospace';
+
+            let gradCurrent = ctx.createLinearGradient(0, 0, 0, 400);
+            gradCurrent.addColorStop(0, 'rgba(244, 63, 94, 0.6)');
+            gradCurrent.addColorStop(1, 'rgba(244, 63, 94, 0.0)');
+
+            let gradOpt = ctx.createLinearGradient(0, 0, 0, 400);
+            gradOpt.addColorStop(0, 'rgba(16, 185, 129, 0.6)');
+            gradOpt.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May (Now)', 'Projected (With AI)'],
+                    datasets: [
+                        {
+                            label: 'Without AI Action',
+                            data: [current*0.8, current*0.85, current*0.9, current*0.95, current, current*1.1],
+                            borderColor: '#f43f5e', backgroundColor: gradCurrent, fill: true,
+                            tension: 0.4, borderWidth: 2, pointBackgroundColor: '#f43f5e', pointRadius: 4
+                        },
+                        {
+                            label: 'With AI Action',
+                            data: [null, null, null, null, current, optimized],
+                            borderColor: '#10b981', backgroundColor: gradOpt, fill: true,
+                            tension: 0.4, borderWidth: 2, pointBackgroundColor: '#10b981', pointRadius: 6, borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#9ca3af', usePointStyle: true } } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false } }
+                    },
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
